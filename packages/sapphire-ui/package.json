@@ -1,0 +1,13 @@
+{
+  "name": "@sapphire/ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "libs/index.js",
+  "scripts": {
+    "dev": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
