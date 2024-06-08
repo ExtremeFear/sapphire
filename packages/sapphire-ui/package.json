@@ -1,13 +1,25 @@
 {
   "name": "@sapphire/ui",
   "version": "1.0.0",
-  "description": "",
-  "main": "libs/index.js",
+  "description": "sapphire ui",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "unpkg": "./dist/umd/index.js",
   "scripts": {
-    "dev": "rollup -c",
+    "dev": "rollup -cw --environment NODE_ENV:development --bundleConfigAsCjs",
+    "build": "rollup -c --environment NODE_ENV:production --bundleConfigAsCjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.27"
+  },
+  "files": [
+    "dist/*"
+  ]
 }
