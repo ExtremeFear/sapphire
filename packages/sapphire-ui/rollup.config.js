@@ -4,6 +4,7 @@ const path = require('path')
 const vue = require('@vitejs/plugin-vue')
 const alias = require('@rollup/plugin-alias')
 const terser = require('@rollup/plugin-terser')
+const vueJsx = require('@vitejs/plugin-vue-jsx')
 const postcss = require('rollup-plugin-postcss')
 const commonjs = require('@rollup/plugin-commonjs')
 const typescript = require('@rollup/plugin-typescript')
@@ -29,25 +30,31 @@ const dist = path.resolve(__dirname, './dist')
 const resolver = (...args) => path.resolve(__dirname, ...args)
 let moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
 
-const rollupDefaultOption = {
-  external: [isDEV && 'vue'].filter(Boolean),
+const postcssPlugin = postcss({
+  minimize: true,
+  autoModules: true,
+  extract: false,
+  // extensions: ['.css'],
   plugins: [
-    vue(),
+    require('autoprefixer'),
+    require('tailwindcss')
+  ]
+})
+
+const rollupDefaultOption = {
+  external: ['vue'],
+  plugins: [
+    nodeResolve({
+      browser: true,
+      extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue'],
+    }),
     commonjs(),
+    vue(),
+    vueJsx(),
+    postcssPlugin,
     getAlias(),
     getTerser(),
     typescript(),
-    postcss({
-      minimize: true,
-      extract: 'style.css',
-      extensions: ['.css'],
-      plugins: [
-        require('autoprefixer')
-      ]
-    }),
-    nodeResolve({
-      extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue'],
-    })
   ].filter(Boolean)
 }
 
@@ -85,7 +92,7 @@ const CJSESMBuilder = () => {
         output: formatList.map(format => ({
           format,
           sourcemap: !isDEV,
-          file: path.resolve(dist, format, module, `${name.replace(/\.ts/, '')}.js`),
+          file: path.resolve(dist, format, module, `${name.replace(/\.ts/, '')}`, 'index.js'),
         }))
       })
     })
