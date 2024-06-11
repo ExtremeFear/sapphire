@@ -1,7 +1,9 @@
 .idea
 .vscode
 
-dist/*
+lib
+libs
+dist
 
 node_modules
 pnpm-lock.yaml
