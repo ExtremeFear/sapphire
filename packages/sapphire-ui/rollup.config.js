@@ -24,20 +24,19 @@ const getAlias = () => {
 }
 
 const entryFileName = 'index.ts'
-const formatList = isDEV ? ['esm'] : ['esm', 'cjs']
 const root = path.resolve(__dirname, './src')
 const dist = path.resolve(__dirname, './dist')
+const formatList = isDEV ? ['esm'] : ['esm', 'cjs']
 const resolver = (...args) => path.resolve(__dirname, ...args)
-let moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
+const moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
 
 const postcssPlugin = postcss({
   minimize: true,
   autoModules: true,
-  extract: false,
-  // extensions: ['.css'],
+  extract: isDEV ? false : 'styles.min.css',
   plugins: [
+    require('tailwindcss'),
     require('autoprefixer'),
-    require('tailwindcss')
   ]
 })
 
@@ -79,26 +78,43 @@ const UMDBuilder = () => {
 }
 
 const CJSESMBuilder = () => {
-  return moduleList.filter(item => item !== 'styles').reduce((options, module) => {
+  const result = moduleList.filter(item => item !== 'styles').reduce((options, module) => {
     const dirNames = fs.readdirSync(path.resolve(root, module)).filter(name => name !== entryFileName)
 
     dirNames.forEach(name => {
       const fullPath = path.resolve(root, module, name)
       const _fullPath = fs.statSync(fullPath).isFile() ? fullPath : (path.join(fullPath, entryFileName))
 
-      options.push({
-        ...rollupDefaultOption,
-        input: _fullPath,
-        output: formatList.map(format => ({
-          format,
-          sourcemap: !isDEV,
-          file: path.resolve(dist, format, module, `${name.replace(/\.ts/, '')}`, 'index.js'),
-        }))
-      })
+      options.input[name] = _fullPath
+      // options.push({
+      //   ...rollupDefaultOption,
+      //   input: _fullPath,
+      //   output: formatList.map(format => ({
+      //     format,
+      //     sourcemap: !isDEV,
+      //     file: path.resolve(dist, format, module, `${name.replace(/\.ts/, '')}`, 'index.js'),
+      //   }))
+      // })
     })
 
     return options
-  }, [])
+  }, {
+    input: {},
+    ...rollupDefaultOption,
+    output: formatList.map(format => ({
+      format,
+      sourcemap: !isDEV,
+      dir: path.resolve(dist, format),
+      entryFileNames: chunkInfo => {
+        const { name, facadeModuleId } = chunkInfo
+        const moduleName = facadeModuleId.split(path.sep).slice(0, -1).reverse().find(sep => sep !== name)
+
+        return [moduleName, name.replace(/\.ts/, ''), 'index.js'].join('/')
+      }
+    }))
+  })
+
+  return [result]
 }
 
 const injectEntriesFile = () => {
