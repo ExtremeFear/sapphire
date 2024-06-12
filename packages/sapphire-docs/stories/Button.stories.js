@@ -1,7 +1,7 @@
 import { fn } from '@storybook/test';
 
 import { Button } from '@sapphire/ui'
-// import '@sapphire/ui/dist/esm/components/Button/index.css'
+// import '@sapphire/ui/dist/esm/styles.min.css'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 export default {

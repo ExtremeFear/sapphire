@@ -1,8 +1,9 @@
+import { withInstall } from '@/utils'
 import styles from './Button.module.css'
 import { defineComponent, reactive, ref } from 'vue'
 
-const Button = defineComponent({
-  name: 'Button',
+const SButton = defineComponent({
+  name: 'SButton',
 
   setup() {
     const state = reactive({
@@ -13,13 +14,13 @@ const Button = defineComponent({
 
     const handler = () => {
       state.age += 1
-      name.value += 1
+      name.value += 12
     }
 
     return () => (
-      <div class="w-[20px] overflow-hidden text-ellipsis whitespace-nowrap">123</div>
+      <button onClick={handler} class={styles.button}>button</button>
     )
   }
 })
 
-export default Button
+export default withInstall(SButton)

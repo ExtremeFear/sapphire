@@ -1,8 +1,15 @@
+/**
+ * rollup.config.js
+ *
+ */
+
 const fs = require('fs')
 const path = require('path')
 
 const vue = require('@vitejs/plugin-vue')
+const del = require('rollup-plugin-delete')
 const alias = require('@rollup/plugin-alias')
+const eslint = require('@rollup/plugin-eslint')
 const terser = require('@rollup/plugin-terser')
 const vueJsx = require('@vitejs/plugin-vue-jsx')
 const postcss = require('rollup-plugin-postcss')
@@ -11,8 +18,11 @@ const typescript = require('@rollup/plugin-typescript')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 
 const isDEV = process.env.NODE_ENV === 'development'
-
-const getTerser = () => isDEV ? null : terser({ maxWorkers: 4 })
+const getTerser = () => {
+  return null
+  return isDEV ? null : terser({ maxWorkers: 4 })
+}
+const getFileName = name => name.replace(new RegExp(`${path.extname(name)}`), '')
 
 const getAlias = () => {
   return alias({
@@ -24,20 +34,28 @@ const getAlias = () => {
 }
 
 const entryFileName = 'index.ts'
-const formatList = isDEV ? ['esm'] : ['esm', 'cjs']
 const root = path.resolve(__dirname, './src')
 const dist = path.resolve(__dirname, './dist')
+const formatList = isDEV ? ['esm'] : ['esm', 'cjs']
 const resolver = (...args) => path.resolve(__dirname, ...args)
-let moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
+const moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
 
 const postcssPlugin = postcss({
   minimize: true,
   autoModules: true,
-  extract: false,
-  // extensions: ['.css'],
+  extract: isDEV ? false : 'index.min.css',
   plugins: [
-    require('autoprefixer'),
-    require('tailwindcss')
+    require('postcss-import')({
+      resolve: (id) => {
+        if (id.startsWith('@')) {
+          return root + id.slice(1)
+        }
+
+        return id
+      }
+    }),
+    require('tailwindcss'),
+    require('autoprefixer')
   ]
 })
 
@@ -52,6 +70,10 @@ const rollupDefaultOption = {
     vue(),
     vueJsx(),
     postcssPlugin,
+    eslint({
+      exclude: ['node_modules/**'],
+      include: 'src/**/*.{js,jsx,ts,tsx,vue}'
+    }),
     getAlias(),
     getTerser(),
     typescript(),
@@ -79,26 +101,29 @@ const UMDBuilder = () => {
 }
 
 const CJSESMBuilder = () => {
-  return moduleList.filter(item => item !== 'styles').reduce((options, module) => {
+  const result = moduleList.filter(item => item !== 'styles').reduce((options, module) => {
     const dirNames = fs.readdirSync(path.resolve(root, module)).filter(name => name !== entryFileName)
 
     dirNames.forEach(name => {
       const fullPath = path.resolve(root, module, name)
-      const _fullPath = fs.statSync(fullPath).isFile() ? fullPath : (path.join(fullPath, entryFileName))
-
-      options.push({
-        ...rollupDefaultOption,
-        input: _fullPath,
-        output: formatList.map(format => ({
-          format,
-          sourcemap: !isDEV,
-          file: path.resolve(dist, format, module, `${name.replace(/\.ts/, '')}`, 'index.js'),
-        }))
-      })
+      options.input[`${module}/${getFileName(name)}`] = fs.statSync(fullPath).isFile()
+        ? fullPath
+        : path.join(fullPath, entryFileName)
     })
 
     return options
-  }, [])
+  }, {
+    input: {},
+    ...rollupDefaultOption,
+    output: formatList.map(format => ({
+      format,
+      sourcemap: !isDEV,
+      dir: path.resolve(dist),
+      entryFileNames: chunkInfo => [format, chunkInfo.name, 'index.js'].join('/')
+    }))
+  })
+
+  return [result]
 }
 
 const injectEntriesFile = () => {
