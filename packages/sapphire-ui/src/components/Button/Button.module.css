@@ -2,5 +2,5 @@
 
 .button {
   cursor: pointer;
-  background: var(--primary-color);
+  background: var(--sap-primary-color);
 }
