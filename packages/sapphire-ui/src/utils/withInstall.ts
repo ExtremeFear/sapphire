@@ -1,13 +1,11 @@
-import type { App, Component, DefineComponent } from 'vue'
+import type { App, Component, Plugin } from 'vue'
 
-export type WithInstallComponent = (Component | DefineComponent) & {
-  install?: (app: App) => void
-}
+const withInstall = <T extends Component>(component: T) => {
+  const _component = component as T & Plugin
 
-const withInstall = (component: WithInstallComponent) => {
-  if (!component.install) {
-    component.install = app => {
-      app.component(component.name as string, component)
+  if (!_component.install) {
+    _component.install = (app: App) => {
+      app.component(component.name as string, _component)
     }
   }
 

@@ -1,3 +1,4 @@
 dist/*
+*rc.js
 rollup.config.js
 

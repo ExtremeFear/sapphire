@@ -7,7 +7,6 @@ const fs = require('fs')
 const path = require('path')
 
 const vue = require('@vitejs/plugin-vue')
-const del = require('rollup-plugin-delete')
 const alias = require('@rollup/plugin-alias')
 const eslint = require('@rollup/plugin-eslint')
 const terser = require('@rollup/plugin-terser')
@@ -22,23 +21,20 @@ const getTerser = () => {
   return null
   return isDEV ? null : terser({ maxWorkers: 4 })
 }
-const getFileName = name => name.replace(new RegExp(`${path.extname(name)}`), '')
-
-const getAlias = () => {
-  return alias({
-    entries: {
-      '@': resolver('./src'),
-      '@comps': resolver('./src/components'),
-    }
-  })
-}
-
 const entryFileName = 'index.ts'
 const root = path.resolve(__dirname, './src')
 const dist = path.resolve(__dirname, './dist')
 const formatList = isDEV ? ['esm'] : ['esm', 'cjs']
 const resolver = (...args) => path.resolve(__dirname, ...args)
+const getFileName = name => name.replace(new RegExp(`${path.extname(name)}`), '')
 const moduleList = fs.readdirSync(root).filter(file => fs.statSync(path.resolve(root, file)).isDirectory())
+const _alias = alias({
+  entries: {
+    '@': resolver('./src'),
+    '@comps': resolver('./src/components'),
+  }
+})
+
 
 const postcssPlugin = postcss({
   minimize: true,
@@ -74,7 +70,7 @@ const rollupDefaultOption = {
       exclude: ['node_modules/**'],
       include: 'src/**/*.{js,jsx,ts,tsx,vue}'
     }),
-    getAlias(),
+    _alias,
     getTerser(),
     typescript(),
   ].filter(Boolean)
@@ -118,8 +114,8 @@ const CJSESMBuilder = () => {
     output: formatList.map(format => ({
       format,
       sourcemap: !isDEV,
-      dir: path.resolve(dist),
-      entryFileNames: chunkInfo => [format, chunkInfo.name, 'index.js'].join('/')
+      dir: path.resolve(dist, format),
+      entryFileNames: chunkInfo => [chunkInfo.name, 'index.js'].join('/')
     }))
   })
 
@@ -146,7 +142,7 @@ const injectEntriesFile = () => {
           format,
           exports: 'named',
           sourcemap: !isDEV,
-          file: path.join(dist, format, entry.scope, entry.name.replace(/\.ts/, '.js'))
+          file: path.join(dist, format, entry.scope, `${getFileName(entry.name)}.js`)
         }))
       }) : console.warn(`\n[cli-injectEntriesFile]: ${input} 入口文件不存在，请检查!\n`)
   })

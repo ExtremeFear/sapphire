@@ -1,2 +1,2 @@
-export { default as Card } from './Card'
-export { default as Button } from './Button'
+export { default as SCard } from './Card'
+export { default as SButton } from './Button'

@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "rollup -cw --environment NODE_ENV:development --bundleConfigAsCjs",
     "build": "rollup -c --environment NODE_ENV:production --bundleConfigAsCjs",
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src/",
+    "format:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +22,6 @@
     "vue": "^3.4.27"
   },
   "files": [
-    "dist/*"
+    "dist"
   ]
 }

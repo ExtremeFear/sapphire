@@ -7,9 +7,12 @@ const SCard = defineComponent({
 
   setup() {
     return () => (
-      <div class={styles.card}>card</div>
+      <div class={styles.card}>
+        card
+        <div>123</div>
+      </div>
     )
-  }
+  },
 })
 
 export default withInstall(SCard)

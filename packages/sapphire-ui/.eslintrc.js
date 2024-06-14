@@ -1,12 +1,17 @@
 module.exports = {
+  root: true,
+
   env: {
     es6: true,
-    browser: true,
+    node: true,
+    browser: true
   },
 
   extends: [
+    'eslint:recommended',
     'plugin:vue/vue3-recommended',
-    'plugin:@typescript-eslint/recommended'
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended'
   ],
 
   parser: 'vue-eslint-parser',
@@ -20,5 +25,15 @@ module.exports = {
   plugins: [
     'vue',
     '@typescript-eslint'
-  ]
+  ],
+
+  rules: {
+    'prettier/prettier': [
+      'error',
+      {
+        'semi': false,
+        'singleQuote': true
+      }
+    ]
+  }
 }

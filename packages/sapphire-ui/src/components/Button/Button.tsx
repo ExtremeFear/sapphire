@@ -1,4 +1,5 @@
 import { withInstall } from '@/utils'
+import SCard from '@/components/Card'
 import styles from './Button.module.css'
 import { defineComponent, reactive, ref } from 'vue'
 
@@ -7,10 +8,10 @@ const SButton = defineComponent({
 
   setup() {
     const state = reactive({
-      age: 18
+      age: 18,
     })
 
-    const name = ref<number>(1)
+    const name = ref(1)
 
     const handler = () => {
       state.age += 1
@@ -18,9 +19,12 @@ const SButton = defineComponent({
     }
 
     return () => (
-      <button onClick={handler} class={styles.button}>button</button>
+      <button onClick={handler} class={styles.button}>
+        button
+        <SCard />
+      </button>
     )
-  }
+  },
 })
 
 export default withInstall(SButton)
