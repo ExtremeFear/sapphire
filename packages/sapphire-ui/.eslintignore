@@ -1,4 +1,5 @@
 dist/*
 *rc.js
 rollup.config.js
+tailwind.config.js
 
