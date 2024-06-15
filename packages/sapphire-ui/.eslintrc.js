@@ -32,7 +32,8 @@ module.exports = {
       'error',
       {
         'semi': false,
-        'singleQuote': true
+        'singleQuote': true,
+        'endOfLine': 'auto'
       }
     ]
   }
