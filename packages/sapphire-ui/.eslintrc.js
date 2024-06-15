@@ -36,5 +36,11 @@ module.exports = {
         'endOfLine': 'auto'
       }
     ]
-  }
+  },
+
+  ignorePatterns: [
+    'dist',
+    '*rc.js',
+    '*.config.js'
+  ]
 }
