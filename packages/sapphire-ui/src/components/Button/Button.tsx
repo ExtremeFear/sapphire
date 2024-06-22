@@ -1,4 +1,3 @@
-import { withInstall } from '@/utils'
 import SCard from '@/components/Card'
 import styles from './Button.module.css'
 import { defineComponent, reactive, ref } from 'vue'
@@ -27,4 +26,4 @@ const SButton = defineComponent({
   },
 })
 
-export default withInstall(SButton)
+export default SButton

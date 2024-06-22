@@ -1,2 +1,19 @@
+import { App, Plugin } from 'vue'
+import * as components from './components'
+
 export * from './components'
 export * as utils from './utils'
+
+/**
+ * global components register
+ *
+ */
+const installPlugin: Plugin = {
+  install(app: App) {
+    Object.values(components).forEach((component) => {
+      app.component(component.name as string, component)
+    })
+  },
+}
+
+export default installPlugin

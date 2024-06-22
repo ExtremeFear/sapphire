@@ -1,5 +1,4 @@
 import { defineComponent } from 'vue'
-import { withInstall } from '@/utils'
 import styles from './Card.module.css'
 
 const SCard = defineComponent({
@@ -15,4 +14,4 @@ const SCard = defineComponent({
   },
 })
 
-export default withInstall(SCard)
+export default SCard
