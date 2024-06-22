@@ -67,6 +67,7 @@ const rollupDefaultOption = {
     vueJsx(),
     postcssPlugin,
     eslint({
+      throwOnError: true,
       exclude: ['node_modules/**'],
       include: 'src/**/*.{js,jsx,ts,tsx,vue}'
     }),
@@ -77,8 +78,6 @@ const rollupDefaultOption = {
 }
 
 const UMDBuilder = () => {
-  if (isDEV) { return [] }
-
   const format = 'umd'
 
   return [
@@ -150,9 +149,25 @@ const injectEntriesFile = () => {
   return options
 }
 
+const devBuilder = () => {
+  const _format = formatList[0]
 
-exports.default = [
-  ...UMDBuilder(),
-  ...CJSESMBuilder(),
-  ...injectEntriesFile()
-]
+  return {
+    ...rollupDefaultOption,
+    input: path.join(root, entryFileName),
+    output: {
+      format: _format,
+      file: path.join(dist, _format, 'index.js')
+    }
+  }
+}
+
+const buildTasks = isDEV
+  ? devBuilder()
+  : [
+    ...UMDBuilder(),
+    ...CJSESMBuilder(),
+    ...injectEntriesFile()
+  ]
+
+exports.default = buildTasks
