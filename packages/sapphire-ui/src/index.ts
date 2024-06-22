@@ -7,6 +7,8 @@ export * as utils from './utils'
 /**
  * global components register
  *
+ * 视情况决定是否改用每个组件手动 import
+ *
  */
 const installPlugin: Plugin = {
   install(app: App) {
